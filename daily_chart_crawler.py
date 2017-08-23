@@ -18,8 +18,8 @@ def getYoutubeUrl(keyword):
 
         return songUrl
 
-def getRealTimeTopRank():
-        html = rs.get('http://www.melon.com/chart/').text
+def getDailyTopRank():
+        html = rs.get('http://www.melon.com/chart/day/').text
         soup = BeautifulSoup(html, 'lxml')
 
         song = soup.findAll('div', attrs = {'class' : 'ellipsis rank01'})
@@ -51,7 +51,7 @@ def getRealTimeTopRank():
         result = DataFrame(data)
         updateChart(result)
 
-#       result.to_csv('~/web_crawler/realTime_top_100.csv', encoding = 'euc-kr')
+        result.to_csv('~/web_crawler/daily_top_100.csv', encoding = 'euc-kr')
 
         print 'complete'
 
@@ -69,20 +69,20 @@ def updateChart(item):
                 title = temp[2]
                 url = temp[3]
                 print '%s %s %s %s' %(rank, title, artist, url)
-                query = 'INSERT INTO admin.realTimeTopRank (rank, title, artist, url) VALUES ("%d", "%s", "%s", "%s") ' %(rank, title, artist, url)
+                query = 'INSERT INTO admin.dailyTopRank (rank, title, artist, url) VALUES ("%d", "%s", "%s", "%s") ' %(rank, title, artist, url)
                 query2 = 'ON DUPLICATE KEY UPDATE rank = "%d", title = "%s", artist = "%s", url = "%s"' %(rank, title, artist, url)
                 cursor.execute(query + query2)
                 conn.commit()
 
         conn.close()
-        print 'DB Update Complete'
+        print 'Daily Top100 DB Update Complete'
 
 
 daemon_flag = True;
 def Daemon():
 
 #       while (daemon_flag):
-                getRealTimeTopRank();
+                getDailyTopRank();
 
 #               time.sleep(3600)
 
